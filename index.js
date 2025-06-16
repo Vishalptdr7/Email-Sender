@@ -83,3 +83,62 @@ transporter.sendMail(mailOptions, (error, info) => {
     console.log("Email sent successfully:", info.response);
   }
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const handleSendNotification = async () => {
+  if (!userId) {
+    setStatus("⚠️ User ID is required!");
+    return;
+  }
+
+  if (!authUser) {
+    setStatus("❌ Authentication required!");
+    return;
+  }
+
+  const message = await getMessage();
+
+  try {
+    await axiosInstance.post("/notification", {
+      user_id: userId,
+      message: message,
+      sender_id: authUser.user_id,
+    });
+
+    setStatus("✅ Notification Sent!");
+
+    // ✅ Reuse existing socket connection
+    socketRef.current?.emit("sendNotification", {
+      user_id: userId,
+      sender_id: authUser.user_id,
+      message: message,
+    });
+
+    setUserId(propUserId || "");
+  } catch (error) {
+    setStatus("❌ Failed to send notification.");
+    console.error("Error:", error);
+  }
+};
